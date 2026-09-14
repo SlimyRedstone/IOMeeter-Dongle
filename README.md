@@ -97,24 +97,3 @@ vendor-specific interface carrying the real protocol on raw bulk endpoints. The 
 include the BOS and MS OS 2.0 blocks that bind WinUSB on Windows without a driver install.
 
 The identity is Espressif's vendor ID with product ID 0x6902.
-
-On the vendor interface the two sides exchange JSON objects, one per transfer, reassembled
-when they span more than one packet. The host sets and gets: the LED colour, the whole
-configuration, individual slider positions, and a document of its own that the firmware
-parks on the device so that the desktop client's settings travel with the hardware. The
-device reports sliders back one at a time in the same shape the host uses to command them,
-with the addition of whether a finger is on the slider, since a slider under a finger is one
-the host must not drive back. Link state and the peer's battery level are reported as they
-change.
-
----
-
-## Configuration
-
-Everything a board differs by is a build-time menu rather than a constant in the source: the
-device role, the radio channel, the pairing button and how long it has to be held, the
-battery reporting interval, the LED type and its pins, and the display's wiring, geometry
-and orientation.
-
-Colours, brightness, the pairing state and the reporting interval also live in the
-configuration file, where the desktop client can read and change them at run time.
