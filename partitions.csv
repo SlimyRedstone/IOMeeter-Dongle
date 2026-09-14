@@ -1,0 +1,12 @@
+# ESP32-S3 with 16MB of flash. The table itself lives at 0x8000, so the first
+# partition starts at 0x9000 and an app has to begin on a 64kB boundary.
+#
+# factory is 3MB: the build is already over 1MB with LVGL, Wi-Fi and TinyUSB in
+# it, and the UI is what grows from here. storage holds config.json and the
+# host document, and is the "storage" label the config component mounts.
+#
+# Name,     Type, SubType, Offset,   Size,  Flags
+nvs,        data, nvs,     0x9000,   0x6000,
+phy_init,   data, phy,     0xf000,   0x1000,
+factory,    app,  factory, 0x10000,  3M,
+storage,    data, spiffs,  0x310000, 1M,

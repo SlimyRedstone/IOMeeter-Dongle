@@ -1,0 +1,130 @@
+menu "Display (ST7735 + LVGL)"
+
+    config DISPLAY_ENABLED
+        bool "Bring up the display"
+        default y
+        help
+            Unset to leave the panel dark and skip LVGL entirely. The API stays
+            present and reports ESP_ERR_NOT_SUPPORTED.
+
+    menu "Wiring"
+        depends on DISPLAY_ENABLED
+
+        config DISPLAY_SPI_HOST
+            int "SPI host"
+            default 2
+            range 2 3
+            help
+                2 is SPI2_HOST, 3 is SPI3_HOST. Must differ from the host the
+                APA102 status LED uses, which defaults to 3.
+
+        config DISPLAY_PIN_SCLK
+            int "SCLK GPIO"
+            default 5
+            range 0 48
+
+        config DISPLAY_PIN_MOSI
+            int "MOSI GPIO"
+            default 3
+            range 0 48
+
+        config DISPLAY_PIN_CS
+            int "CS GPIO"
+            default 4
+            range -1 48
+
+        config DISPLAY_PIN_DC
+            int "DC GPIO"
+            default 2
+            range 0 48
+
+        config DISPLAY_PIN_RST
+            int "RST GPIO, -1 for a software reset"
+            default 1
+            range -1 48
+
+        config DISPLAY_PIN_BACKLIGHT
+            int "Backlight GPIO, -1 if it is not switchable"
+            default 38
+            range -1 48
+            help
+                The T-Dongle S3 examples drive GPIO38. Some board revisions use
+                GPIO37 instead -- if the panel initialises but stays dark, that
+                is the first thing to try.
+
+        config DISPLAY_BACKLIGHT_ACTIVE_HIGH
+            bool "Backlight is on when the pin is high"
+            default n
+            help
+                Off for the T-Dongle S3 Plus. The pin drives the LED anode
+                through a switch, so LilyGO's own code lights it by writing 0
+                (LCD_BK_LIGHT_ON 0). Set this if a board does the opposite.
+
+        config DISPLAY_PCLK_HZ
+            int "SPI clock, in Hz"
+            default 30000000
+            range 1000000 80000000
+            help
+                30MHz is what LilyGO's own configuration uses. Drop it if the
+                panel shows torn or speckled frames.
+    endmenu
+
+    menu "Panel"
+        depends on DISPLAY_ENABLED
+
+        config DISPLAY_H_RES
+            int "Horizontal resolution"
+            default 160
+            range 1 1024
+
+        config DISPLAY_V_RES
+            int "Vertical resolution"
+            default 80
+            range 1 1024
+
+        config DISPLAY_X_GAP
+            int "Column offset into panel memory"
+            default 1
+            help
+                The 0.96" 160x80 module maps onto a larger controller memory,
+                so the visible area starts part way in. 1 and 26 are the
+                offsets that go with the swap and mirror below.
+
+        config DISPLAY_Y_GAP
+            int "Row offset into panel memory"
+            default 26
+
+        config DISPLAY_SWAP_XY
+            bool "Swap the axes"
+            default y
+
+        config DISPLAY_MIRROR_X
+            bool "Mirror horizontally"
+            default n
+
+        config DISPLAY_MIRROR_Y
+            bool "Mirror vertically"
+            default y
+
+        config DISPLAY_INVERT_COLOR
+            bool "Invert colour"
+            default y
+            help
+                This panel is fitted the inverted way round; without this,
+                black shows white.
+
+        config DISPLAY_BGR_ORDER
+            bool "Panel expects BGR rather than RGB"
+            default y
+    endmenu
+
+    config DISPLAY_LVGL_BUFFER_LINES
+        int "LVGL draw buffer, in lines"
+        depends on DISPLAY_ENABLED
+        default 20
+        range 1 1024
+        help
+            Two buffers of this many full-width lines are allocated in DMA
+            memory. 20 lines of 160 pixels is 6.4kB each.
+
+endmenu

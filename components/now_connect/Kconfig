@@ -1,0 +1,74 @@
+menu "NowConnect (ESP-NOW link)"
+
+    choice NOW_CONNECT_ROLE
+        prompt "Device role"
+        default NOW_CONNECT_ROLE_MASTER
+        help
+            Which end of the link this firmware is. Exactly one master and one
+            slave pair with each other; two devices of the same role ignore
+            each other's pairing requests.
+
+        config NOW_CONNECT_ROLE_MASTER
+            bool "Master -- the dongle plugged into the computer"
+
+        config NOW_CONNECT_ROLE_SLAVE
+            bool "Slave -- the control surface that reports to it"
+    endchoice
+
+    config NOW_CONNECT_CHANNEL
+        int "Wi-Fi channel"
+        default 1
+        range 1 13
+        help
+            Neither end joins an access point, so the channel is fixed here and
+            must be the same on both devices.
+
+    config NOW_CONNECT_PAIR_GPIO
+        int "Pairing button GPIO"
+        default 0
+        range -1 48
+        help
+            Held down to open the pairing window. -1 leaves the button out
+            entirely, in which case only now_connect_start_pairing() opens it.
+
+    config NOW_CONNECT_PAIR_ACTIVE_HIGH
+        bool "Pairing button reads high when pressed"
+        default n
+        help
+            Leave unset for the usual button to ground with a pull-up, which is
+            how GPIO0 is wired on the T-Dongle S3.
+
+    config NOW_CONNECT_PAIR_HOLD_MS
+        int "Hold time that opens pairing, in milliseconds"
+        default 3000
+        range 200 30000
+
+    config NOW_CONNECT_PAIR_WINDOW_S
+        int "How long the pairing window stays open, in seconds"
+        default 60
+        range 5 600
+
+    config NOW_CONNECT_BATTERY_MINUTES
+        int "Battery report interval, in minutes"
+        default 1
+        range 1 255
+        help
+            Fallback only. The interval actually used comes from
+            pair.battery_min in config.json.
+
+    config NOW_CONNECT_HEARTBEAT_MS
+        int "Heartbeat interval, in milliseconds"
+        default 1000
+        range 100 60000
+        help
+            Sent only when nothing else has gone out, so a device reporting
+            continuously never adds traffic of its own.
+
+    config NOW_CONNECT_LINK_TIMEOUT_MS
+        int "Silence that marks the link down, in milliseconds"
+        default 3500
+        range 200 120000
+        help
+            Should be a small multiple of the heartbeat interval.
+
+endmenu

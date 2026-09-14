@@ -1,0 +1,65 @@
+menu "Status LED (neopixel)"
+
+    choice NEOPIXEL_MODEL
+        prompt "LED type"
+        default NEOPIXEL_MODEL_APA102
+        help
+            Two wire protocols that are not interchangeable. The T-Dongle S3
+            Plus carries an APA102 on two pins, data and clock; most bare LED
+            strips are WS2812 and use one.
+
+        config NEOPIXEL_MODEL_WS2812
+            bool "WS2812 / SK6812 -- one wire, driven by RMT"
+
+        config NEOPIXEL_MODEL_APA102
+            bool "APA102 / SK9822 -- two wires, driven by SPI"
+    endchoice
+
+    config NEOPIXEL_DATA_GPIO
+        int "Data GPIO"
+        default 40
+        range 0 48
+        help
+            GPIO40 on the T-Dongle S3 Plus, labelled RGB DIN.
+
+    config NEOPIXEL_CLK_GPIO
+        int "Clock GPIO"
+        depends on NEOPIXEL_MODEL_APA102
+        default 39
+        range 0 48
+        help
+            GPIO39 on the T-Dongle S3 Plus, labelled RGB CLK.
+
+    config NEOPIXEL_SPI_HOST
+        int "SPI host for the APA102"
+        depends on NEOPIXEL_MODEL_APA102
+        default 3
+        range 2 3
+        help
+            The peripheral's name: 2 for SPI2, 3 for SPI3. Keep it off the host
+            the display uses: the LED has no chip select, so its bus cannot be
+            shared.
+
+    config NEOPIXEL_SPI_HZ
+        int "APA102 clock, in Hz"
+        depends on NEOPIXEL_MODEL_APA102
+        default 10000000
+        range 100000 40000000
+
+    config NEOPIXEL_COUNT
+        int "Number of LEDs"
+        default 1
+        range 1 512
+
+    config NEOPIXEL_BRIGHTNESS
+        int "Default brightness, 0 - 255"
+        default 64
+        range 0 255
+        help
+            Overridden by led.brightness in config.json once that is loaded.
+            An APA102 dims through a 5-bit current register, so 8/255 lands on
+            level 1 of 31 and is invisible in daylight; LilyGO's own example
+            runs this LED at 100. 64 is a quarter scale, bright enough to read
+            across a room without being painful.
+
+endmenu
